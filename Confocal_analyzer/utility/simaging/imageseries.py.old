@@ -1,0 +1,131 @@
+# -*- coding: utf-8 -*-
+import threading
+import logging
+import os
+import re
+from pathlib import PurePath, Path
+
+from simaging.api import readimage
+
+logger = logging.Logger(__name__)
+
+
+class ImageSeries(object):
+    """ Represents a series consisting of multiple images. """
+    
+    def __init__(self, file):
+        logger.info("Searching for files: %s", file)
+        self.__findFiles(PurePath(os.path.abspath(file)))
+        logger.info("Found $s files", len(self.__files))
+        self.__cached = [None] * len(self.__files)
+        self.__persistcache = [False] * len(self.__files)
+        self.__setcurrentindex(0)
+    
+    def __iter__(self):
+        return ImageSeriesIterator(self)
+        
+    def __reversed__(self):
+        return ImageSeriesReversedIterator(self)
+
+    def __len__(self):
+        return len(self.__files)
+    
+    def __getitem__(self, index):
+        self.__setcurrentindex(index)
+        return self.__getImage(index)
+        
+    def __findFiles(self, file):
+        filename = file.stem
+        fileext = file.suffix
+        basename = re.search(r"^(.+?)\d+$", filename).group(1)
+        pattern = basename + "[0-9]*" + fileext
+        self.__files = [str(x) for x in sorted(Path(file.parent).glob(pattern))]
+        
+    def __getImage(self, index):
+        if self.__cached[index] is not None:
+            return self.__cached[index]
+        else:
+            return readimage(self.__files[index])
+    
+    def __setcurrentindex(self, index):
+        prev_ = index - 1
+        if prev_ < 0: 
+            prev_ = index
+        next_ = index + 1
+        if next_ >= len(self): 
+            next_ = index    
+        self.__cleancache(excluded=set((prev_, index, next_)))
+        self.cacheAsync(set((prev_, index, next_)))
+    
+    def __cleancache(self, indexrange=(), excluded=()):
+        if not indexrange:
+            indexrange = range(len(self.__files))
+        for i in indexrange:
+            if (self.__cached[i] is not None
+                and not i in excluded 
+                and not self.__persistcache[i]):
+               self.__cached[i] = None
+
+    def currentImage(self):
+        return self.__getImage(self.__currentindex)
+    
+    def previousImage(self):
+        prev_ = self.__currentindex - 1
+        if prev_ < 0:
+            raise StopIteration(self.__getimage(self.__currentindex))
+        img = self.__getImage(prev_)
+        self.__setcurrentindex(prev_)
+        return img    
+    
+    def nextImage(self):
+        next_ = self.__currentindex - 1
+        if next_ >= len(self):
+            raise StopIteration(self.__getimage(self.__currentindex))
+        img = self.__getImage(next_)
+        self.__setcurrentindex(next_)
+        return img    
+        
+    def cacheAsync(self, indexrange, persist=False):
+        """ Asynchronously caches multiple images. """
+        loader = ImageLoaderThread(self, indexrange, persist)
+        loader.daemon = True
+        loader.start()
+    
+    def cacheImage(self, index, persist=False):
+        """ Synchronously caches single image. """
+        if self.__cached[index] is None:
+            self.__cached[index] = readimage(self.__files[index])
+
+
+class ImageLoaderThread(threading.Thread):
+    """ Asynchronous loader for images in series. """
+    
+    def __init__(self, imageseries, indexrange, persist=False):
+        threading.Thread.__init__(self)
+        self.series = imageseries
+        self.indexrange = indexrange
+        self.persist = persist
+    
+    def run(self):
+        for index in self.indexrange:
+            self.series.cacheImage(index, self.persist)
+
+
+class ImageSeriesIterator(object):
+    """ Forward iterator for ImageSeries """
+    
+    def __init__(self, imageseries):
+        self.series = imageseries
+        
+    def __next__(self):
+        return self.series.nextImage()
+            
+            
+class ImageSeriesReversedIterator(object):
+    """ Reversed iterator for ImageSeries """
+    
+    def __init__(self, imageseries):
+        self.series = imageseries
+        
+    def __next__(self):
+        return self.series.previousImage()

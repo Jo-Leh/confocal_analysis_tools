@@ -1,0 +1,25 @@
+,wavelength (nm),energy (eV),source
+A1,648.5,1.911861194,https://doi.org/10.1063/1.5045859
+A2,651.7,1.902473507,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.80.245202
+B1,671.6,1.846101823,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.80.245202
+B2,672.8,1.842809132,https://doi.org/10.1063/1.5045859
+B3,675,1.83680294,https://doi.org/10.1063/1.5045859
+B4,676.3,1.833272193,https://doi.org/10.1063/1.5045859
+TS1,768.8,1.61269769,https://doi.org/10.1063/1.5045859
+TS1',769.2,1.611859054,https://doi.org/10.1063/1.5045859
+TS1'',768.7,1.612907486,https://doi.org/10.1063/1.5045859
+TS2,812,1.526898995,https://doi.org/10.1063/1.5045859
+TS3,813.3,1.52445836,https://doi.org/10.1063/1.5045859
+TS3',813.5,1.52408357,https://doi.org/10.1063/1.5045859
+UD2,1078.3,1.149811726,https://doi.org/10.1063/1.5045859
+UD3,914.1,1.35635268,https://doi.org/10.1063/1.5045859
+UD3i,913.3,1.357540769,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.66.115204
+UD3ii,911.5,1.360221596,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.66.115204
+UD3iii,910.4,1.361865097,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.66.115204
+UD3iv,909.6,1.363062868,https://journals.aps.org/prb/pdf/10.1103/PhysRevB.66.115204
+V1,861.3,1.439500736,https://doi.org/10.1063/1.5045859
+V1',858.7,1.443859304,https://doi.org/10.1063/1.5045859
+V2,916.1,1.353391534,https://doi.org/10.1063/1.5045859
+PL6,1038.4,1.193992666,https://physics.aps.org/featured-article-pdf/10.1103/PhysRevLett.114.247603
+diV hh,1132.3,1.094976582,https://physics.aps.org/featured-article-pdf/10.1103/PhysRevLett.114.247603
+diV kk,1131.2,1.096041358,https://physics.aps.org/featured-article-pdf/10.1103/PhysRevLett.114.247603
