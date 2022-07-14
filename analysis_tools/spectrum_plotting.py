@@ -19,7 +19,6 @@ from Confocal_analyzer.utility import spectralLibrary
 
 from PIL import Image
 import tqdm
-import cv2
 
 dataRoot = 'C:/Users/od93yces/Data/'
 figureRoot = 'C:/Users/od93yces/Documents/Figures/'
