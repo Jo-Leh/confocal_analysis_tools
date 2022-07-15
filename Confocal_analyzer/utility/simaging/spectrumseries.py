@@ -24,6 +24,7 @@ class SpectrumSeries:
         self.R = []
         self.piezo = []
         self.stepper = []
+        self.temps = []
         self.__readFiles(self.__dir)
 
     def __readFiles(self, directory):
@@ -64,6 +65,7 @@ class SpectrumSeries:
                 mR = re.search(r"^.*?_R([-+eE\d.]+).*\.+", file.name)
                 mP = re.search(r"^.*?_piezoV([-+eE\d.]+).*\.+", file.name)
                 mS = re.search(r"^.*?_stepper([-+eE\d.]+).*\.+", file.name)
+                mT = re.search(r"^.*?_([-+eE\d.]+)K.*\.+", file.name)
                 viable = False
                 if mZ is None:
                     mZ = re.search(r"^.*?_Z([-+eE\d.]+).*\.+", file.name)
@@ -99,7 +101,12 @@ class SpectrumSeries:
                 if mV is None:
                     mV = re.search(r"^.*?_([-+eE\d.]+)V.*\.+", file.name)
                     if mV is None:
-                        V = 0
+                        mV = re.search(r"^.*?_V_([-+eE\d.]+).*\.+", file.name)
+                        if mV is None:
+                            V = 0
+                        else:
+                            V = float(mV.group(1))
+                            viable = True
                     else:
                         V = float(mV.group(1))
                         viable = True
@@ -141,10 +148,15 @@ class SpectrumSeries:
                 else:
                     S = float(mS.group(1))
                     viable = True
+                if mT is None:
+                    T = 0
+                else:
+                    T = float(mT.group(1))
+                    viable = True
                 if viable:
                     try:
                         data = sapi.readspectrum(str(file))
-                        self.spectra.append((file, (V, X, Y, Hz, Z, R, P, S), data))
+                        self.spectra.append((file, (V, X, Y, Hz, Z, R, P, S, T), data))
                         self.X.append(X)
                         self.Y.append(Y)
                         self.Z.append(Z)
@@ -153,6 +165,7 @@ class SpectrumSeries:
                         self.R.append(R)
                         self.piezo.append(P)
                         self.stepper.append(S)
+                        self.temps.append(T)
                     except:
                         pass
 
@@ -165,9 +178,10 @@ class SpectrumSeries:
         R = len(list(set(self.R)))
         P = len(list(set(self.piezo)))
         S = len(list(set(self.stepper)))
+        T = len(list(set(self.temps)))
         if X == Y == len(self.spectra):
             Y = 1
-        return self.spectra, (Hz, V, X, Y, Z, R, P, S)
+        return self.spectra, (Hz, V, X, Y, Z, R, P, S, T)
 
     def __getitem__(self, index):
         return self.spectra[index][2]

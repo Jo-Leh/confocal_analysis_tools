@@ -8,8 +8,9 @@ import pyqtgraph as pg
 from utility import spectrumProcessing
 
 def getLabelTitle(labelNr, axNr, value):
-	labelNames = ['f', 'V', 'X', 'Y', 'Z', 'R', 'lambda', 'piezo', 'stepper']
-	labelUnits = ['MHz', 'V', 'µm', 'µm', 'µm', '°', 'nm', 'V']
+	labelNames = ['f', 'V', 'X', 'Y', 'Z', 'R', 'piezo', 'stepper', 'T',
+				  'lambda']
+	labelUnits = ['MHz', 'V', 'µm', 'µm', 'µm', '°', 'V', '', 'K', 'nm']
 	colors = ['red', 'blue']
 	return "<span style='font-size: 14pt; color: %s'>%s: %0.2f %s" % (colors[axNr], labelNames[labelNr], value, labelUnits[labelNr])
 
@@ -124,7 +125,9 @@ class ImagerWindow:
 
 		# image axes
 		self.comboBoxXaxis, self.comboBoxYaxis = kwargs['axCombos']
-		axes = ['frequency', 'voltage', 'x position', 'y position', 'z position', 'rotation', 'wavelength', 'piezo', 'stepper']
+		axes = ['frequency', 'voltage', 'x position', 'y position',
+				'z position', 'rotation', 'piezo', 'stepper',
+				'temperature', 'wavelength']
 		for ax in axes:
 			self.comboBoxXaxis.addItem(ax)
 			self.comboBoxYaxis.addItem(ax)
@@ -165,6 +168,7 @@ class ImagerWindow:
 		self.nrRots = 0
 		self.nrPiezos = 0
 		self.nrSteppers = 0
+		self.nrTemps = 0
 		self.data = np.empty(0)
 		self.dataSets = []
 		self.relevantData = []
@@ -177,6 +181,7 @@ class ImagerWindow:
 		self.rotations = []
 		self.piezos = []
 		self.steppers = []
+		self.temps = []
 		self.intensity_image = np.empty(0)
 		self.sorter = np.empty(0)
 		self.sorterSets = []
@@ -217,6 +222,7 @@ class ImagerWindow:
 		self.rotationSets = []
 		self.piezoSets = []
 		self.stepperSets = []
+		self.tempSets = []
 
 		self.xCoorNrSets = []
 		self.yCoorNrSets = []
@@ -226,6 +232,7 @@ class ImagerWindow:
 		self.rotationNrSets = []
 		self.piezoNrSets = []
 		self.stepperNrSets = []
+		self.tempNrSets = []
 
 		self.activeDatas = []
 		self.activeSorters = []
@@ -262,6 +269,7 @@ class ImagerWindow:
 		self.rotationSets = []
 		self.piezoSets = []
 		self.stepperSets = []
+		self.tempSets = []
 
 		self.xCoorNrSets = []
 		self.yCoorNrSets = []
@@ -271,6 +279,7 @@ class ImagerWindow:
 		self.rotationNrSets = []
 		self.piezoNrSets = []
 		self.stepperNrSets = []
+		self.tempNrSets = []
 
 		for j, dataSet in enumerate(self.activeDatas):
 			xCoorsRed = []
@@ -281,6 +290,7 @@ class ImagerWindow:
 			rots = []
 			piezos = []
 			steppers = []
+			temps = []
 
 			for i in range(0, np.shape(dataSet)[0]):
 				xCoorsRed.append(dataSet[i][1][1])
@@ -291,6 +301,7 @@ class ImagerWindow:
 				rots.append(dataSet[i][1][5])
 				piezos.append(dataSet[i][1][6])
 				steppers.append(dataSet[i][1][7])
+				temps.append(dataSet[i][1][8])
 
 			self.xCoorSets.append(sorted(list(set(xCoorsRed))))
 			self.yCoorSets.append(sorted(list(set(yCoorsRed))))
@@ -300,6 +311,7 @@ class ImagerWindow:
 			self.rotationSets.append(sorted(list(set(rots))))
 			self.piezoSets.append(sorted(list(set(piezos))))
 			self.stepperSets.append(sorted(list(set(steppers))))
+			self.tempSets.append(sorted(list(set(temps))))
 
 			self.xCoorNrSets.append(len(self.xCoorSets[j]))
 			self.yCoorNrSets.append(len(self.yCoorSets[j]))
@@ -308,6 +320,7 @@ class ImagerWindow:
 			self.frequencyNrSets.append(len(self.frequencySets[j]))
 			self.piezoNrSets.append(len(self.piezoSets[j]))
 			self.stepperNrSets.append(len(self.stepperSets[j]))
+			self.tempNrSets.append(len(self.tempSets[j]))
 
 		i = self.comboBoximagerSelection.currentIndex()
 		try:
@@ -328,6 +341,7 @@ class ImagerWindow:
 		rots = []
 		piezos = []
 		steppers = []
+		temps = []
 
 		for i in range(0, np.shape(self.data)[0]):
 			xCoorsRed.append(self.data[i][1][1])
@@ -338,6 +352,7 @@ class ImagerWindow:
 			rots.append(self.data[i][1][5])
 			piezos.append(self.data[i][1][6])
 			steppers.append(self.data[i][1][7])
+			temps.append(self.data[i][1][8])
 
 		self.xCoors = sorted(list(set(xCoorsRed)))
 		self.yCoors = sorted(list(set(yCoorsRed)))
@@ -347,6 +362,7 @@ class ImagerWindow:
 		self.rotations = sorted(list(set(rots)))
 		self.piezos = sorted(list(set(piezos)))
 		self.steppers = sorted(list(set(steppers)))
+		self.temps = sorted(list(set(temps)))
 
 		self.nrXpos = len(self.xCoors)
 		self.nrYpos = len(self.yCoors)
@@ -356,6 +372,7 @@ class ImagerWindow:
 		self.nrRots = len(self.rotations)
 		self.nrPiezos = len(self.piezos)
 		self.nrSteppers = len(self.steppers)
+		self.nrTemps = len(self.temps)
 		#########END
 		self.changeVariables()
 
@@ -416,6 +433,11 @@ class ImagerWindow:
 			self.xAxis = self.steppers
 			self.xSets = self.stepperSets
 			self.xNrSets = self.stepperNrSets
+		elif self.xIndex == 8:
+			self.nrXaxis = self.nrTemps
+			self.xAxis = self.temps
+			self.xSets = self.tempSets
+			self.xNrSets = self.tempNrSets
 		else:
 			self.wavelength = 1
 		self.yIndex = self.comboBoxYaxis.currentIndex()
@@ -459,6 +481,11 @@ class ImagerWindow:
 			self.yAxis = self.steppers
 			self.ySets = self.stepperSets
 			self.yNrSets = self.stepperNrSets
+		elif self.yIndex == 8:
+			self.nrYaxis = self.nrTemps
+			self.yAxis = self.temps
+			self.ySets = self.tempSets
+			self.yNrSets = self.tempNrSets
 		else:
 			self.wavelength = 2
 
@@ -801,53 +828,6 @@ class ImagerWindow:
 					self.relSorterSets.append(sort)
 				except Exception as e:
 					print('Test 11', e)
-		# chooserX = self.indexVar1 - 1
-		# if chooserX < 0:
-		# 	chooserX = 3
-		# relX = np.where(self.sorter[:,chooserX] == self.var1[self.activeVar1])
-		# relSpecX = self.data[relX]
-		# relSortX = self.sorter[relX]
-		#
-		# chooserY = self.indexVar2 - 1
-		# if chooserY < 0:
-		# 	chooserY = 3
-		# relY = np.where(relSortX[:,chooserY] == self.var2[self.activeVar2])
-		# self.relevantSorter = relSortX[relY]
-		# self.relevantData = relSpecX[relY]
-		#
-		# xAx = self.xIndex - 1
-		# if xAx < 0:
-		# 	xAx = 3
-		# yAx = self.yIndex - 1
-		# if yAx < 0:
-		# 	yAx = 3
-		# ziplist = zip(list(self.relevantSorter), list(self.relevantData))
-		# self.relevantData = [x for _,x in sorted(ziplist, key=lambda x: (x[0][xAx], x[0][yAx]))]
-		#
-		# print("shapeData %0.1f" % np.shape(self.relevantData)[0])
-
-		# intensity_list = []
-		# wavelengths = self.relevantData[0][2].spectrum[:, 0]
-		# idxLo = np.argmin(np.abs(np.array(wavelengths) - self.lambdaStart))
-		# idxHi = np.argmin(np.abs(np.array(wavelengths) - self.lambdaEnd))
-		#
-		# for i in range(0, np.shape(self.relevantData)[0]):
-		# 	if self.radioButton_SubtractBg.isChecked():
-		# 		new_y_list = []
-		# 		x_start = self.relevantData[i][2].spectrum[idxLo:idxHi, 0][0]
-		# 		x_end = self.relevantData[i][2].spectrum[idxLo:idxHi, 0][-1]
-		# 		y_start = self.relevantData[i][2].spectrum[idxLo:idxHi, 1][0]
-		# 		y_end = self.relevantData[i][2].spectrum[idxLo:idxHi, 1][-1]
-		# 		m = (y_end - y_start) / (x_end - x_start)
-		# 		for j in range(0, len(self.relevantData[i][2].spectrum[idxLo:idxHi, 1])):
-		# 			x = self.relevantData[i][2].spectrum[idxLo:idxHi, 0][j]
-		# 			y = self.relevantData[i][2].spectrum[idxLo:idxHi, 1][j] - (x - x_start) * m - y_start
-		# 			new_y_list.append(y)
-		#
-		# 		value = np.trapz(new_y_list, x=self.relevantData[i][2].spectrum[idxLo:idxHi, 0])
-		# 	else:
-		# 		value = np.trapz(self.relevantData[i][2].spectrum[idxLo:idxHi, 1], x=self.relevantData[i][2].spectrum[idxLo:idxHi, 0])
-		# 	intensity_list.append(value)  # use first intensity value in each spectrum as test
 
 
 		intensity_array = self.getIntensityData(self.relevantData)

@@ -422,9 +422,12 @@ def changeVoltages(gui:Analyzer):
 
 
 def saveData(gui:Analyzer):
-    filename = QtGui.QFileDialog.getSaveFileName(gui, 'Save Fit Data', gui.loadFolder, '*.fdlts')[0]
+    filename = QtWidgets.QFileDialog.getSaveFileName(gui, 'Save Fit Data', gui.loadFolder, '*.fdlts')[0]
+    data = []
+    for datPack in gui.dltsDataPacks:
+        data += datPack
     with open(filename, 'wb') as file:
-        pickle.dump(gui.dltsData, file)
+        pickle.dump(data, file)
 
 def loadFile(gui:Analyzer, file):
     VrVpCombis = []
